@@ -26,13 +26,13 @@ $arrayMedia5=calculateMediaMobile($api,'TRXBNB','5m');
 $flags=array();
 $flags['stopPrice']='0.0001569';
 // $order = $api->sell('TRXBNB', 321, "0.0001569","STOP_LOSS_LIMIT",$flags);//funziona
-$order = $api->sell('TRXBNB', 321, "0.0001569","STOP_LOSS_LIMIT",$flags);
+   // $order = $api->sell('TRXBNB', 321, "0.0001569","STOP_LOSS_LIMIT",$flags);
 // $order = $api->sell('TRXBNB', 321, "0.0001577","TAKE_PROFIT_LIMIT",$flags);
 //handleDate($time)
 //                                    $arraytime[]=date("d-m-Y H:i:s", ($time / 1000) ); 
 //$fee['tradeFee'][0]['maker'];
 // $keyCripto=array_search('WIN',array_column($result['balances'],'asset'));
 // echo json_encode($result[ count($result) - 1  ]).PHP_EOL;
-echo json_encode($order);
+echo json_encode($arrayMedia5);
 
  ?>
