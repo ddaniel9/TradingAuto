@@ -132,7 +132,7 @@ function getLastCandle($api,$symbol,$interval='5m'){
 function calculateMediaMobile($api,$symbol,$interval='5m'){
     $result=$api->getCandle($symbol,$interval);
     $arrayClose=array_column($result,'close');
-    $arrayMedia=exponentialMovingAverage($arrayClose,5);
+    $arrayMedia=exponentialMovingAverage($arrayClose,5);//trader_ema($arrayClose,5);//
     return $arrayMedia;
 }
 
@@ -156,6 +156,14 @@ function exponentialMovingAverage(array $numbers, int $n): array
 }
 
 
-
+function checkUpTrand(array $candleArray, int $finestraTemp){
+    for( $i=count($candleArray)-$finestraTemp; $i<count($candleArray);$i++){
+        if(!($candleArray[$i-1]['high']<$candleArray[$i]['high']) 
+        &&
+        !($candleArray[$i-1]['low']>$candleArray[$i]['low'])
+        ){return false;};
+    }
+    return true;
+}
 
 

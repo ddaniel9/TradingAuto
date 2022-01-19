@@ -17,22 +17,30 @@ require_once 'handlerBuySell.php';
 // $arraytime[]=$time;
 //  $result=leggiUpdatePriceControll($api);
 
-
 // roundStep($qty, $stepSize = 0.1)
 // roundTicks($price, $tickSize)
 //getCandle(string $symbol, string $interval = "5m", int $limit = null, $startTime = null, $endTime = null)
-$arrayMedia5=calculateMediaMobile($api,'TRXBNB','5m');
+// $arrayMedia5=calculateMediaMobile($api,'TRXBNB','5m');
 // $order = $api->buy('TRXBNB', 321, "","MARKET");
+$result=$api->getCandle('BNBBTC','1h');
+$result2=checkUpTrand( $result,  3);
 $flags=array();
 $flags['stopPrice']='0.0001569';
 // $order = $api->sell('TRXBNB', 321, "0.0001569","STOP_LOSS_LIMIT",$flags);//funziona
    // $order = $api->sell('TRXBNB', 321, "0.0001569","STOP_LOSS_LIMIT",$flags);
 // $order = $api->sell('TRXBNB', 321, "0.0001577","TAKE_PROFIT_LIMIT",$flags);
+                        // // OCO:
+                        // // 	SELL:
+                        // // 		take profit: price
+                        // // 		stop : 0,021
+                        // // 		limit : 0,020(per essere sicuro che fa ordine al mercato).
+                        // $order = $api->ocoOrder( 'SELL', 'BNBBTC', 0.025, 0.011080, 0.011012, 0.011010);
 //handleDate($time)
 //                                    $arraytime[]=date("d-m-Y H:i:s", ($time / 1000) ); 
 //$fee['tradeFee'][0]['maker'];
 // $keyCripto=array_search('WIN',array_column($result['balances'],'asset'));
 // echo json_encode($result[ count($result) - 1  ]).PHP_EOL;
-echo json_encode($arrayMedia5);
+
+echo json_encode($result2);
 
  ?>

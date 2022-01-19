@@ -1,17 +1,19 @@
 <?php
 
 function writeInJson($nomeJson,$jsonArray){
+    global $path;
     $nomeJson=$nomeJson.'.json';
     $jsonArray=json_encode($jsonArray,true);
-    if (file_put_contents(PATH.$nomeJson, $jsonArray))
+    if (file_put_contents($path.$nomeJson, $jsonArray))
         return true;
     else 
         return false;
 }
 
 function leggiFileJson($File){
-    if(file_exists(PATH.$File.".json")){
-    $Jsonfile=file_get_contents(PATH.$File.".json",true);
+    global $path;
+    if(file_exists($path.$File.".json")){
+    $Jsonfile=file_get_contents($path.$File.".json",true);
     return json_decode($Jsonfile);
     }
     return false;

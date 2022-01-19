@@ -3,9 +3,15 @@ require_once 'php-binance-api.php';
 require_once 'elementaryFunction.php';
 require_once 'economicFunction.php';
 //CONST PATH='./../fileJson/';// da file Bat
-CONST PATH='./fileJson/';// da file PHP/shell
+// CONST PATH='./fileJson/';// da file PHP/shell
+$path='./fileJson/';//da file PHP/shell
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'  & (php_sapi_name() == 'cli') ) {
+    $path='./../fileJson/';// da file Bat
+}
+
 function newBinance($file){
-    $file=PATH.$file.'.json';
+    global $path;
+    $file=$path.$file.'.json';
     return new Binance\API($file);
 }
 
