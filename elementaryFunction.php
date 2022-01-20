@@ -184,8 +184,12 @@ function MaxVarPercSymbolFrom2Array($datarrayPrima,$dataarrayDopo){
 }
 
 function calculateTheRightMeasure($step,$initialQuantity,$under=false){
+    $precision=strlen(rtrim(substr($step, strpos($step, '.', 1) + 1), '0'));
+    if(strripos($step,"E")){
+        $precision=substr(trim($step), -1);
+    }
     $quantityToarrive=$initialQuantity;
-    $initialQuantity=roundDown($quantityToarrive, strlen(substr(strrchr($step, "."), 0))-1);
+    $initialQuantity=roundDown($quantityToarrive, $precision);
     $result=$initialQuantity;
     while($initialQuantity<$quantityToarrive){
         $initialQuantity=$initialQuantity+$step;

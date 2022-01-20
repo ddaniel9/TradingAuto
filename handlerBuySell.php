@@ -271,4 +271,224 @@ function calculatePrevPriceSell($prezzoPreso,$SymbolFeatures){
     return $prezzoVendita;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function handleInitWithOneSymbol($api){
+    global $monetaDaGioco;
+    $symbolChosen['symbol']='FARMBNB';
+    //VERIFICO se è rimasto in sospeso un acquisto:
+    $SymbolFeatures=leggiFileJson('simbolbuyed');
+    if($SymbolFeatures){
+        sellOcoProfitStop((array)$SymbolFeatures,$api);
+    }else{
+        //Si inizia : 
+        // Controllo se ho i soldi sul conto
+        $checkOrderByMoneyGame=checkOrderByMoneyGame($api);
+        if($checkOrderByMoneyGame){
+            //carico il symbol di features:
+            $SymbolFeatures=GetSymbolFeatures($symbolChosen['symbol'],$api);
+            //verifico la strategia di acquisto:
+            $checkStrategy=checkStrategyBeforeToBuy($api,$SymbolFeatures);
+            if($checkStrategy){
+                return calculateOtherInfoAndBuy($api,$SymbolFeatures);
+            }else{
+                PHP_EOL.PHP_EOL."don't have right STRATEGY for ".$monetaDaGioco.PHP_EOL.PHP_EOL;
+            }
+        }else{
+            PHP_EOL.PHP_EOL."don't have any MONEY of ".$monetaDaGioco.PHP_EOL.PHP_EOL;
+        }
+    }
+}
+
+
+/**
+ *  Verifica se si possono fare operazioni 
+ * in base ai money nell 'account
+ * in base agli ordini effettuati con quel symbol
+ * 
+ */
+function checkOrderByMoneyGame($api){
+        global $monetaDaGioco;
+        $criptos=$api->account();
+        $keyCripto=array_search($monetaDaGioco,array_column($criptos['balances'],'asset'));
+        $quantity= (float)$criptos['balances'][$keyCripto]['free'];
+        if ($quantity > 0) { return true;}
+    return false;
+}
+
+/**
+ * Verifica e sceglie la strategia da utilizzare 
+ * per procedere all'acquisto
+ * 
+ */
+function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
+        $symbol=$SymbolFeatures['symbol'];
+        $SymbolFeatures['timeframeCandle']='1h';
+        $candle1h=$api->getCandle($symbol,$SymbolFeatures['timeframeCandle']);
+        $SymbolFeatures['upTrand']=checkUpTrand($candle1h,3);
+        $SymbolFeatures['arrayClose']=array_column($candle1h,'close');
+        $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
+        $SymbolFeatures['trader_stochrsi']=array_reverse(trader_stochrsi($SymbolFeatures['arrayClose'],14,3,3,TRADER_MA_TYPE_SMA));
+        $SymbolFeatures['exponentialMovingAverage']=exponentialMovingAverage($SymbolFeatures['arrayClose'],5);
+        if($SymbolFeatures['upTrand']){
+            return true;
+        }
+        return false;
+}
+
+
+/**
+ * Calcola AND Buy:
+ * la quantità
+ * price
+ */
+function calculateOtherInfoAndBuy($api,$SymbolFeatures){
+    $SymbolFeatures=CalculateQuantity($SymbolFeatures,$api);
+    if(!$SymbolFeatures){return false;}
+    //QUANTITY for 2.
+    // $SymbolFeatures['quantityToBuy']=$SymbolFeatures['quantityToBuy']*2;
+    $order = $api->buy($SymbolFeatures["symbol"], $SymbolFeatures['quantityToBuy'], "","MARKET");
+    if(isset($order['status']) && $order['status']=='FILLED'){
+        $SymbolFeatures['executedQty']=(float)$order['executedQty'];
+        $SymbolFeatures['OrderBuy']=$order['fills'];
+        writeInJson('simbolbuyed',$SymbolFeatures);
+        return sellOcoProfitStop($SymbolFeatures,$api);
+    }
+    return false;
+}
+
+
+
+
+/** *
+ * price
+ * stopprice 
+ * stoplimitprice
+ * 
+ * Lastprice>>stopprice>stoplimitprice */
+
+function CalculatePriceAndQtyToSellOCO(&$SymbolFeatures,$api){
+    $SymbolFeatures=(array)$SymbolFeatures;
+
+    //Prezzo preso:
+    $SymbolFeatures['lastOrder']=getLastOrderBySymbol($api,$SymbolFeatures['symbol']);
+    $prezzoPreso=(float)$SymbolFeatures['lastOrder']['price'];
+
+    $tickSize=(float)$SymbolFeatures['tickSize'];
+   
+
+    //stopprice:
+    global $percVenditaPerdita;
+    $prezzoVenditaPerdita=$prezzoPreso - ($prezzoPreso*(float)$percVenditaPerdita);
+    $stopprice=$prezzoVenditaPerdita=calculateTheRightMeasure($tickSize,$prezzoVenditaPerdita); 
+    $SymbolFeatures['stopprice']=$stopprice;
+    //RAPPORTO 3:1
+    $prezzoVendita=3*($prezzoPreso-$prezzoVenditaPerdita)  +  $prezzoPreso;
+
+    //PREZZO di Vendita(TakeProfit):
+    $prezzoVendita=calculateTheRightMeasure($tickSize,$prezzoVendita); 
+    $SymbolFeatures['prezzoVendita']=$prezzoVendita;
+
+    //stoplimitprice:
+    $stoplimitprice=$stopprice-($tickSize*2);
+    $SymbolFeatures['stoplimitprice']=$stoplimitprice;
+   
+    //QUANTITY:
+    $quantityforsell=getQuantityFromAccount($SymbolFeatures['symbol'],$api);
+    $SymbolFeatures["quantityForSellNONRound"]=$quantityforsell;
+    $stepSize=(float)$SymbolFeatures['stepSize'];
+    $SymbolFeatures["quantityForSell"]=calculateTheRightMeasure($stepSize,$quantityforsell,true);
+    return $SymbolFeatures;
+}
+
+
+/**
+ * 
+ * Vendita in takeprofit 
+ * 
+ */
+function sellOcoProfitStop($SymbolFeatures,$api){
+    CalculatePriceAndQtyToSellOCO($SymbolFeatures,$api);
+    writeInJson('simbolbuyed',$SymbolFeatures);
+    $order = $api->ocoOrder( 'SELL', $SymbolFeatures['symbol'], $SymbolFeatures['quantityForSell'], $SymbolFeatures['prezzoVendita'],     $SymbolFeatures['stopprice'],$SymbolFeatures['stoplimitprice']);
+    $SymbolFeatures['orderOCO']=$order;
+    if(isset($order['orderReports'])){
+        writeInJson('simbolbuyed','');
+        $arraySchedule=leggiFileJson('simbolScheduled');
+        $arraySchedule[]=$SymbolFeatures;
+        writeInJson('simbolScheduled',$arraySchedule);
+        writeInJson('updatingPrice','');
+        global $chatId;
+        sendMessage($chatId,"ORDER OCO ".$SymbolFeatures['symbol']." prezzo vendita TAKE profit: ".$SymbolFeatures['prezzoVendita']." prezzo vendita STOP LOSS profit:".$SymbolFeatures['stopprice']);
+        echo PHP_EOL."ORDER OCO ".$SymbolFeatures['symbol']." prezzo vendita TAKE profit: ".$SymbolFeatures['prezzoVendita']." prezzo vendita STOP LOSS profit:".$SymbolFeatures['stopprice'].PHP_EOL.PHP_EOL ;
+        return true; 
+    }
+    return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ?>

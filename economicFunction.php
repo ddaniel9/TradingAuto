@@ -78,7 +78,7 @@ function CalculatePriceAndQtyToSell($SymbolFeatures,$api){
     //     }
     // }
     
-    $quantityforsell=getQuantityFromAccount($SymbolFeatures,$api);
+    $quantityforsell=getQuantityFromAccount($SymbolFeatures['symbol'],$api);
     $SymbolFeatures["quantityForSellNONRound"]=$quantityforsell;
     $stepSize=(float)$SymbolFeatures['stepSize'];
     $SymbolFeatures["quantityForSell"]=calculateTheRightMeasure($stepSize,$quantityforsell,true);
@@ -87,9 +87,9 @@ function CalculatePriceAndQtyToSell($SymbolFeatures,$api){
   }
 
 
-function getQuantityFromAccount($SymbolFeatures,$api){
+function getQuantityFromAccount($symbol,$api){
     global $monetaDaGioco;
-    $cripto=getOtherCriptoInSymbol($monetaDaGioco,$SymbolFeatures['symbol']);
+    $cripto=getOtherCriptoInSymbol($monetaDaGioco,$symbol);
     $criptos=$api->account();
     $keyCripto=array_search($cripto,array_column($criptos['balances'],'asset'));
     $quantity= (float)$criptos['balances'][$keyCripto]['free'];
@@ -156,12 +156,25 @@ function exponentialMovingAverage(array $numbers, int $n): array
 }
 
 
+    /**
+     * checkUpTrand - check if the trade is upTrand
+     * 
+     * @param int    $finestraTemp  last time for consider
+     * @param array  $candleArra
+     * 
+     * @return boolean containing the response
+     * @throws \Exception
+     */
 function checkUpTrand(array $candleArray, int $finestraTemp){
     for( $i=count($candleArray)-$finestraTemp; $i<count($candleArray);$i++){
-        if(!($candleArray[$i-1]['high']<$candleArray[$i]['high']) 
-        &&
-        !($candleArray[$i-1]['low']>$candleArray[$i]['low'])
-        ){return false;};
+        if(
+            (!($candleArray[$i-1]['high']<$candleArray[$i]['high']))
+            &&
+            (!($candleArray[$i-1]['low']<$candleArray[$i]['low']))
+        )
+            {
+                return false;
+            }
     }
     return true;
 }
