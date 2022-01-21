@@ -189,7 +189,10 @@ function checkNoDojiInArray(array $candleArray){
     return true;
 }
 
-
+/**
+ * torna true se la candela presenta un'ombra più lunga
+ * del body
+ */
 function checkCandleLongShodow(array $candle){
     $checkGreenCandle=checkGreenCandle($candle);
     if($checkGreenCandle){
