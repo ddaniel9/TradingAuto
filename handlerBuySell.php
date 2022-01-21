@@ -295,7 +295,7 @@ function calculatePrevPriceSell($prezzoPreso,$SymbolFeatures){
 
 function handleInitWithOneSymbol($api){
     global $monetaDaGioco;
-    $symbolChosen['symbol']='FARMBNB';
+    $symbolChosen['symbol']='XRPBNB';
     //VERIFICO se è rimasto in sospeso un acquisto:
     $SymbolFeatures=leggiFileJson('simbolbuyed');
     if($SymbolFeatures){
@@ -339,17 +339,19 @@ function checkOrderByMoneyGame($api){
 /**
  * Verifica e sceglie la strategia da utilizzare 
  * per procedere all'acquisto
- * 
+ * Candle: 1m,3m,5m,15m,30m,1h,2h,4h,6h,8h,12h,1d,3d,1w,1M
  */
 function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         $symbol=$SymbolFeatures['symbol'];
         $SymbolFeatures['timeframeCandle']='1h';
         $candle1h=$api->getCandle($symbol,$SymbolFeatures['timeframeCandle']);
         $SymbolFeatures['upTrand']=checkUpTrand($candle1h,3);
-        $SymbolFeatures['arrayClose']=array_column($candle1h,'close');
-        $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
-        $SymbolFeatures['trader_stochrsi']=array_reverse(trader_stochrsi($SymbolFeatures['arrayClose'],14,3,3,TRADER_MA_TYPE_SMA));
-        $SymbolFeatures['exponentialMovingAverage']=exponentialMovingAverage($SymbolFeatures['arrayClose'],5);
+        $candle5m=$api->getCandle($symbol,'5m');
+
+        // $SymbolFeatures['arrayClose']=array_column($candle1h,'close');
+        // $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
+        // $SymbolFeatures['trader_stochrsi']=array_reverse(trader_stochrsi($SymbolFeatures['arrayClose'],14,3,3,TRADER_MA_TYPE_SMA));
+        // $SymbolFeatures['exponentialMovingAverage']=exponentialMovingAverage($SymbolFeatures['arrayClose'],5);
         if($SymbolFeatures['upTrand']){
             return true;
         }

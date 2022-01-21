@@ -179,4 +179,46 @@ function checkUpTrand(array $candleArray, int $finestraTemp){
     return true;
 }
 
+function checkNoDojiInArray(array $candleArray){
+    for( $i=count($candleArray)-50; $i<count($candleArray);$i++){
+        if(($candleArray[$i]['open']==$candleArray[$i]['close']))
+            {
+                return false;
+            }
+    }
+    return true;
+}
 
+
+function checkCandleLongShodow(array $candle){
+    $checkGreenCandle=checkGreenCandle($candle);
+    if($checkGreenCandle){
+        //GREEN
+        $base=$candle['open'];
+        $top=$candle['close'];
+    }else{
+        //RED
+        $base=$candle['close'];
+        $top=$candle['open'];
+    }
+    $bodyCandle= $top-$base;
+    $lowerShadow=$base-$candle['low'];
+    $upperShadow=$candle['high']-$top;
+    if(
+        $bodyCandle<$lowerShadow
+        ||
+        $bodyCandle<$upperShadow
+    ){
+            return true;
+    }
+    return false;
+}
+
+
+function checkGreenCandle(array $candle){
+    if($candle['open'] < $candle['close']){
+                return true;
+        }else{
+            return false;
+        }
+}
