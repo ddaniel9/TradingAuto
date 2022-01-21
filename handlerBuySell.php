@@ -310,7 +310,7 @@ function initTheGame($api){
         // e verifico la percentuale giornaliera se è buona
             $h24prevDay=getAllh24GoodSymbol($api);
             foreach($h24prevDay as $symbol){
-                handleInitWithOneSymbol($api,$symbol);
+                handleInitWithOneSymbol($api,$symbol['symbol']);
             }
     }
 }
@@ -353,11 +353,9 @@ function handleInitWithOneSymbol($api,$symbol){
             //verifico la strategia di acquisto:
             $checkStrategy=checkStrategyBeforeToBuy($api,$SymbolFeatures);
             if($checkStrategy){
-                
-                global $chatId;
-                sendMessage($chatId,"ORDER OCO ".$SymbolFeatures['symbol']. "price: ".$SymbolFeatures['LastPriceViewd']);
-               
-                // return calculateOtherInfoAndBuy($api,$SymbolFeatures);
+                // global $chatId;
+                // sendMessage($chatId,"ORDER OCO ".$SymbolFeatures['symbol']. "price: ".$SymbolFeatures['LastPriceViewd']);            
+                 return calculateOtherInfoAndBuy($api,$SymbolFeatures);
 
             }else{
                 echo PHP_EOL.PHP_EOL."don't have right STRATEGY for ".$monetaDaGioco.PHP_EOL.PHP_EOL;
@@ -392,14 +390,27 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         $symbol=$SymbolFeatures['symbol'];
         $SymbolFeatures['timeframeCandle']='1h';
         $candle1h=$api->getCandle($symbol,$SymbolFeatures['timeframeCandle']);
-        $SymbolFeatures['upTrand']=checkUpTrand($candle1h,3);
+        $SymbolFeatures['upTrand']=$checkUpTrand=checkUpTrand($candle1h,3);
         $candle5m=$api->getCandle($symbol,'5m');
-
+        $SymbolFeatures['checkNoDojiInArray']=$checkNoDojiInArray=checkNoDojiInArray($candle5m);
+        $numberOfCandle=count($candle5m);
+        $lastCandle=end($candle5m);
+        $secondLastCandle=$candle5m[ count($candle5m) - 2  ];
+        $checkGreenLastCandle=checkGreenCandle($lastCandle);
+        $checkGreensecondLastCandle=checkGreenCandle($secondLastCandle);
         // $SymbolFeatures['arrayClose']=array_column($candle1h,'close');
         // $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
         // $SymbolFeatures['trader_stochrsi']=array_reverse(trader_stochrsi($SymbolFeatures['arrayClose'],14,3,3,TRADER_MA_TYPE_SMA));
         // $SymbolFeatures['exponentialMovingAverage']=exponentialMovingAverage($SymbolFeatures['arrayClose'],5);
-        if($SymbolFeatures['upTrand']){
+        if(
+            $checkUpTrand
+            &&
+            $checkNoDojiInArray
+            &&
+            $checkGreenLastCandle //l'ultima candela dei 5m deve essere verde
+            &&
+            !$checkGreensecondLastCandle // la penultima candela  dei 5m deve essere rossa
+        ){
             return true;
         }
         return false;
@@ -421,6 +432,8 @@ function calculateOtherInfoAndBuy($api,$SymbolFeatures){
         $SymbolFeatures['executedQty']=(float)$order['executedQty'];
         $SymbolFeatures['OrderBuy']=$order['fills'];
         writeInJson('simbolbuyed',$SymbolFeatures);
+        global $chatId;
+        sendMessage($chatId,"Comprato: ".$SymbolFeatures['symbol']. "price: ".$SymbolFeatures['LastPriceViewd']);
         return sellOcoProfitStop($SymbolFeatures,$api);
     }
     return false;

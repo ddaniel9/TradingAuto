@@ -180,7 +180,7 @@ function checkUpTrand(array $candleArray, int $finestraTemp){
 }
 
 function checkNoDojiInArray(array $candleArray){
-    for( $i=count($candleArray)-50; $i<count($candleArray);$i++){
+    for( $i=count($candleArray)-20; $i<count($candleArray);$i++){
         if(($candleArray[$i]['open']==$candleArray[$i]['close']))
             {
                 return false;

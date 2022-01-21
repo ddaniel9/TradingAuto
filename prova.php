@@ -35,7 +35,7 @@ require_once 'handlerBuySell.php';
                         // echo json_encode(exponentialMovingAverage((array)$arrayClose,5));
 
                         initConfiguration();
-                        getAllh24GoodSymbol($api);
+                        $candle5m=$api->getCandle('CHRBNB','5m');
 // $result2=checkOrderByMoneyGame($api);
 
 
@@ -62,6 +62,6 @@ require_once 'handlerBuySell.php';
 // $keyCripto=array_search('WIN',array_column($result['balances'],'asset'));
 // echo json_encode($result[ count($result) - 1  ]).PHP_EOL;
 
-echo json_encode($result2);
+echo json_encode($candle5m);
 
  ?>
