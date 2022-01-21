@@ -293,14 +293,57 @@ function calculatePrevPriceSell($prezzoPreso,$SymbolFeatures){
 
 
 
-function handleInitWithOneSymbol($api){
-    global $monetaDaGioco;
-    $symbolChosen['symbol']='XRPBNB';
+
+
+
+
+
+
+
+function initTheGame($api){
     //VERIFICO se è rimasto in sospeso un acquisto:
     $SymbolFeatures=leggiFileJson('simbolbuyed');
     if($SymbolFeatures){
         sellOcoProfitStop((array)$SymbolFeatures,$api);
     }else{
+        //PRENDO tutti i simbol con la moneta del giorno
+        // e verifico la percentuale giornaliera se è buona
+            $h24prevDay=getAllh24GoodSymbol($api);
+            foreach($h24prevDay as $symbol){
+                handleInitWithOneSymbol($api,$symbol);
+            }
+    }
+}
+
+
+
+
+function getAllh24GoodSymbol($api){
+    global $monetaDaGioco;
+    global $MinPercentualeDiCrescita;
+    $h24prevDay=$api->prevDay();
+    //bnb AND var ++ in array
+    //salvare array e poi?
+    $arrayForGame=array();
+    foreach($h24prevDay as $key => $value) {
+        $criptoInSymbol=criptoInSymbol($monetaDaGioco,$value["symbol"]);
+        if(
+            $criptoInSymbol
+        &
+            $value["priceChangePercent"] >=$MinPercentualeDiCrescita )
+            {
+            $arrayForGame[]=$value;
+            }
+    }
+    return $arrayForGame;
+}
+
+
+
+
+function handleInitWithOneSymbol($api,$symbol){
+    global $monetaDaGioco;
+    $symbolChosen['symbol']=$symbol;
         //Si inizia : 
         // Controllo se ho i soldi sul conto
         $checkOrderByMoneyGame=checkOrderByMoneyGame($api);
@@ -310,14 +353,18 @@ function handleInitWithOneSymbol($api){
             //verifico la strategia di acquisto:
             $checkStrategy=checkStrategyBeforeToBuy($api,$SymbolFeatures);
             if($checkStrategy){
-                return calculateOtherInfoAndBuy($api,$SymbolFeatures);
+                
+                global $chatId;
+                sendMessage($chatId,"ORDER OCO ".$SymbolFeatures['symbol']. "price: ".$SymbolFeatures['LastPriceViewd']);
+               
+                // return calculateOtherInfoAndBuy($api,$SymbolFeatures);
+
             }else{
-                PHP_EOL.PHP_EOL."don't have right STRATEGY for ".$monetaDaGioco.PHP_EOL.PHP_EOL;
+                echo PHP_EOL.PHP_EOL."don't have right STRATEGY for ".$monetaDaGioco.PHP_EOL.PHP_EOL;
             }
         }else{
-            PHP_EOL.PHP_EOL."don't have any MONEY of ".$monetaDaGioco.PHP_EOL.PHP_EOL;
+            echo PHP_EOL.PHP_EOL."don't have any MONEY of ".$monetaDaGioco.PHP_EOL.PHP_EOL;
         }
-    }
 }
 
 

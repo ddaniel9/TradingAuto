@@ -35,7 +35,7 @@ require_once 'handlerBuySell.php';
                         // echo json_encode(exponentialMovingAverage((array)$arrayClose,5));
 
                         initConfiguration();
-                        
+                        getAllh24GoodSymbol($api);
 // $result2=checkOrderByMoneyGame($api);
 
 

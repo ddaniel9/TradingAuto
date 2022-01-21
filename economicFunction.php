@@ -205,9 +205,9 @@ function checkCandleLongShodow(array $candle){
     $lowerShadow=$base-$candle['low'];
     $upperShadow=$candle['high']-$top;
     if(
-        $bodyCandle<$lowerShadow
+        $bodyCandle<$lowerShadow  // possibile Hammer o hanging man
         ||
-        $bodyCandle<$upperShadow
+        $bodyCandle<$upperShadow // possibile inverted Hammer o shooting star
     ){
             return true;
     }
