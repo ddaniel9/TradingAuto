@@ -180,7 +180,7 @@ function checkUpTrand(array $candleArray, int $finestraTemp){
 }
 
 function checkNoDojiInArray(array $candleArray){
-    for( $i=count($candleArray)-20; $i<count($candleArray);$i++){
+    for( $i=count($candleArray)-30; $i<count($candleArray);$i++){
         if(($candleArray[$i]['open']==$candleArray[$i]['close']))
             {
                 return false;
@@ -224,4 +224,18 @@ function checkGreenCandle(array $candle){
         }else{
             return false;
         }
+}
+
+/**
+ * Moving Average Convergence/Divergence (MACD) 
+ * 
+ */
+function differentialLineForMacd($firstPeriod,$secondPeriod){
+    $arr_length = sizeof($firstPeriod) -1;
+    $minus_arr = [];
+    for($i = 0; $i <= $arr_length; $i++){
+        $minus = $firstPeriod[$i] - $secondPeriod[$i];
+        array_push($minus_arr, $minus);
+    }
+    return $minus_arr;
 }
