@@ -405,7 +405,7 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         $arrayClose=array_column($candle15m,'close');
 
         //TRADE Strategy:
-        
+
             //rsi e rsiSthoc
                 // (sui 15 minuti per esempio sono consigliati i 20-5-5 o 17-9-3), invece per
                 // quelli più alti si può lavorare con valori più bassi per essere più reattivi (5- 3-3 o 6-3-3).
@@ -414,7 +414,7 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                 $SymbolFeatures['trader_stochrsiK']=$trader_stochrsiK= end($trader_stochrsi[0]);
                 $SymbolFeatures['trader_stochrsiD']=$trader_stochrsiD= end($trader_stochrsi[1]);
                 $SymbolFeatures['rsi']=end($rsi);
-            //EMA && SMA:
+            //EMA && SMA && MACD:
                 // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);
                 $smaMovingAverage12=trader_sma($arrayClose,12);
                 $SymbolFeatures['smaMovingAverage12']=end($smaMovingAverage12);
@@ -425,6 +425,8 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                 $differentialLine=differentialLineForMacd($smaMovingAverage26,$smaMovingAverage12);
                 $SymbolFeatures['differentialLine']=end($differentialLine);
                 $SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['signalLine']-$SymbolFeatures['differentialLine'];
+                $emaMovingAverage21=trader_ema($arrayClose,21);
+                $SymbolFeatures['emaMovingAverage21']=end($emaMovingAverage21);
                 //   if   $signalLine>$differentialLine; => Rilazista
             
         

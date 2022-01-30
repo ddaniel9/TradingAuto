@@ -46,13 +46,13 @@ require_once 'handlerBuySell.php';
         echo json_encode($trader_stochrsi).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
         // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);// come da grafico
         $exponentialMovingAverage12=trader_sma($arrayClose,12);
-        echo json_encode("EMA 12 : ").PHP_EOL;// come da grafico
+        echo json_encode("SMA 12 : ").PHP_EOL;// come da grafico
         echo json_encode($exponentialMovingAverage12).PHP_EOL;
         $exponentialMovingAverage26=trader_sma($arrayClose,26);
-        echo json_encode("EMA 26 : ").PHP_EOL;// come da grafico
+        echo json_encode("SMA 26 : ").PHP_EOL;// come da grafico
         echo json_encode($exponentialMovingAverage26).PHP_EOL;
         $signalLine=$exponentialMovingAverage9=trader_sma($arrayClose,9);
-        echo json_encode("EMA 9 : ").PHP_EOL;// come da grafico
+        echo json_encode("SMA 9 : ").PHP_EOL;// come da grafico
         echo json_encode($exponentialMovingAverage9).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
 
         $rsi=trader_rsi($arrayClose,17);

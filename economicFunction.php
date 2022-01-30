@@ -234,8 +234,10 @@ function differentialLineForMacd($firstPeriod,$secondPeriod){
     $arr_length = sizeof($firstPeriod) -1;
     $minus_arr = [];
     for($i = 0; $i <= $arr_length; $i++){
-        $minus = $firstPeriod[$i] - $secondPeriod[$i];
-        array_push($minus_arr, $minus);
+        if(isset($secondPeriod[$i]) &&  isset($firstPeriod[$i])){
+            $minus = $firstPeriod[$i] - $secondPeriod[$i];
+            array_push($minus_arr, $minus);
+        }
     }
     return $minus_arr;
 }
