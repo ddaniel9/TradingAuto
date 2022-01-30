@@ -34,21 +34,26 @@ require_once 'handlerBuySell.php';
                         // echo PHP_EOL.json_encode("exponentialMovingAverage");
                         // echo json_encode(exponentialMovingAverage((array)$arrayClose,5));
 
-                        initConfiguration();
-                        $candle5m=$api->getCandle('ADABNB','15m');// come da grafico
-                        $arrayClose=array_column($candle5m,'close');// come da grafico
-                        echo json_encode("arrayClose: ").PHP_EOL;
-                        echo json_encode($arrayClose).PHP_EOL;
+        initConfiguration();
+        $candle5m=$api->getCandle('SUSHIBNB','15m');// come da grafico
+        $arrayClose=array_column($candle5m,'close');// come da grafico
+        echo json_encode("arrayClose: ").PHP_EOL;
+        echo json_encode($arrayClose).PHP_EOL;
                         // $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
         // $trader_stochrsi=array_reverse(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
         $trader_stochrsi=(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
         echo json_encode("trader_stochrsi: ").PHP_EOL;
-        echo json_encode($trader_stochrsi).PHP_EOL;
-        $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,10);// come da grafico
-        // echo json_encode("EMA : ").PHP_EOL;// come da grafico
-        // echo json_encode($exponentialMovingAverage12).PHP_EOL;
-        $exponentialMovingAverage26=exponentialMovingAverage($arrayClose,26);
-        $signalLine=$exponentialMovingAverage9=exponentialMovingAverage($arrayClose,9);
+        echo json_encode($trader_stochrsi).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+        // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);// come da grafico
+        $exponentialMovingAverage12=trader_sma($arrayClose,12);
+        echo json_encode("EMA 12 : ").PHP_EOL;// come da grafico
+        echo json_encode($exponentialMovingAverage12).PHP_EOL;
+        $exponentialMovingAverage26=trader_sma($arrayClose,26);
+        echo json_encode("EMA 26 : ").PHP_EOL;// come da grafico
+        echo json_encode($exponentialMovingAverage26).PHP_EOL;
+        $signalLine=$exponentialMovingAverage9=trader_sma($arrayClose,9);
+        echo json_encode("EMA 9 : ").PHP_EOL;// come da grafico
+        echo json_encode($exponentialMovingAverage9).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
 
         $rsi=trader_rsi($arrayClose,17);
         echo json_encode("trader_rsi : ").PHP_EOL;

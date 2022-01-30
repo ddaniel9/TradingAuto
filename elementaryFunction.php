@@ -127,7 +127,8 @@ function getLastOrderBySymbol($api,$symbol){
 }
 
 
- function GetSymbolFeatures($symbol,$api){
+ function GetSymbolFeatures(&$SymbolFeatures,$api){
+    $symbol=$SymbolFeatures['symbol'];
     $valuefilters=array(); 
     $info = $api->exchangeInfo();
     $fee=$api->tradeFee($symbol);

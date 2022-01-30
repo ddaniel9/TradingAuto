@@ -2,6 +2,8 @@
 require_once 'php-binance-api.php';
 require_once 'elementaryFunction.php';
 require_once 'economicFunction.php';
+ini_set('trader.real_precision', '9');
+
 //CONST PATH='./../fileJson/';// da file Bat
 // CONST PATH='./fileJson/';// da file PHP/shell
 $path='./fileJson/';//da file PHP/shell
@@ -35,6 +37,7 @@ function initConfiguration(){
     global $quantityMoltiplicator;
     global $token;
     global $chatId;
+    global $test;
     $percVenditaPerdita=$config->percVenditaPerdita/100;
     $moltiplicatore=$config->moltiplicatore;
     $percVenditaVincita=$config->percVenditaVincita;
@@ -45,6 +48,7 @@ function initConfiguration(){
     $token=$config->token;
     $chatId=$config->chatId;
     $count=1;
+    $test=$config->test;
 }
 
 
@@ -66,7 +70,7 @@ function HandleInit($api){
         if($datarrayPrima){
         $symbolChosen=MaxVarPercSymbolFrom2Array((array)$datarrayPrima,(array)$dataarrayDopo);
             if($symbolChosen['VarPerc']>=$MinPercentualeDiCrescita){
-                $SymbolFeatures=GetSymbolFeatures($symbolChosen['symbol'],$api);
+                $SymbolFeatures=GetSymbolFeatures($symbolChosen,$api);
                 $symbol=$symbolChosen['symbol'];
                 $SymbolFeatures['VarPerc']=$symbolChosen['VarPerc'];
                 $SymbolFeatures['prezzoFinale']=$symbolChosen['prezzoFinale'];
@@ -353,7 +357,7 @@ function handleInitWithOneSymbol($api,$symbol){
             $checkStrategy=checkStrategyBeforeToBuy($api,$SymbolFeatures);
             if($checkStrategy){
                  //carico il symbol di features:
-                $SymbolFeatures=GetSymbolFeatures($SymbolFeatures['symbol'],$api);
+                GetSymbolFeatures($SymbolFeatures,$api);
                 // global $chatId;
                 // sendMessage($chatId,"ORDER OCO ".$SymbolFeatures['symbol']. "price: ".$SymbolFeatures['LastPriceViewd']);            
                  return calculateOtherInfoAndBuy($api,$SymbolFeatures);
@@ -386,12 +390,12 @@ function checkOrderByMoneyGame($api){
  */
 function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         $symbol=$SymbolFeatures['symbol'];
-        $SymbolFeatures['timeframeCandle']='1h';
-        $candle1h=$api->getCandle($symbol,$SymbolFeatures['timeframeCandle']);
-        $SymbolFeatures['upTrand']=$checkUpTrand=checkUpTrand($candle1h,3);
-        $candle15m=$api->getCandle($symbol,'15m');
+        $SymbolFeatures['timeframe']='15m';
+        $candle1h=$api->getCandle($symbol,'1h');
+        $SymbolFeatures['upTrand1h']=$checkUpTrand=checkUpTrand($candle1h,3);
+        $candle15m=$api->getCandle($symbol,$SymbolFeatures['timeframe']);
+
         $SymbolFeatures['checkNoDojiInArray']=$checkNoDojiInArray=checkNoDojiInArray($candle15m);
-        // $numberOfCandle=count($candle5m);
         $lastCandle=end($candle15m);
         $secondLastCandle=$candle15m[ count($candle15m) - 2  ];
         $checkGreenLastCandle=checkGreenCandle($lastCandle);
@@ -399,26 +403,40 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         $checkLastCandleLongShodow=checkCandleLongShodow($lastCandle);
         $checksecondLastCandleLongShodow=checkCandleLongShodow($secondLastCandle);
         $arrayClose=array_column($candle15m,'close');
-        // $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
-        $trader_stochrsi=array_reverse(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
-        $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);
-        $exponentialMovingAverage26=exponentialMovingAverage($arrayClose,26);
-        $signalLine=$exponentialMovingAverage9=exponentialMovingAverage($arrayClose,9);
-        // (sui 15 minuti per esempio sono consigliati i 20-5-5 o 17-9-3), invece per
-        // quelli più alti si può lavorare con valori più bassi per essere più reattivi (5- 3-3 o 6-3-3).
-        $differentialLine=differentialLineForMacd($exponentialMovingAverage26,$exponentialMovingAverage12);
-        //   if   $signalLine>$differentialLine; => Rilazista
+
+        //TRADE Strategy:
         
+            //rsi e rsiSthoc
+                // (sui 15 minuti per esempio sono consigliati i 20-5-5 o 17-9-3), invece per
+                // quelli più alti si può lavorare con valori più bassi per essere più reattivi (5- 3-3 o 6-3-3).
+                $rsi=trader_rsi($arrayClose,17);
+                $trader_stochrsi=trader_stoch($rsi,$rsi,$rsi,17,9,TRADER_MA_TYPE_SMA,3,TRADER_MA_TYPE_SMA);// $trader_stochrsi=trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA);
+                $SymbolFeatures['trader_stochrsiK']=$trader_stochrsiK= end($trader_stochrsi[0]);
+                $SymbolFeatures['trader_stochrsiD']=$trader_stochrsiD= end($trader_stochrsi[1]);
+                $SymbolFeatures['rsi']=end($rsi);
+            //EMA && SMA:
+                // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);
+                $smaMovingAverage12=trader_sma($arrayClose,12);
+                $SymbolFeatures['smaMovingAverage12']=end($smaMovingAverage12);
+                $smaMovingAverage26=trader_sma($arrayClose,26);
+                $SymbolFeatures['smaMovingAverage26']=end($smaMovingAverage26);
+                $signalLine=$smaMovingAverage9=trader_sma($arrayClose,9);
+                $SymbolFeatures['signalLine']=end($signalLine);
+                $differentialLine=differentialLineForMacd($smaMovingAverage26,$smaMovingAverage12);
+                $SymbolFeatures['differentialLine']=end($differentialLine);
+                $SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['signalLine']-$SymbolFeatures['differentialLine'];
+                //   if   $signalLine>$differentialLine; => Rilazista
+            
         
         if(
             $checkUpTrand     // trand rialzista
             &&
             $checkNoDojiInArray  // no candele doji
             &&
-            $checkGreenLastCandle //l'ultima candela dei 5m deve essere verde
-            &&
-            !$checkGreensecondLastCandle // la penultima candela  dei 5m deve essere rossa
-            &&
+            // $checkGreenLastCandle //l'ultima candela dei 5m deve essere verde
+            // &&
+            // !$checkGreensecondLastCandle // la penultima candela  dei 5m deve essere rossa
+            // &&
             !$checkLastCandleLongShodow   // l'ultima candela non deve avere una lunga ombra 
             &&
             !$checksecondLastCandleLongShodow //la penultima candela non deve avere una lunga ombra 
@@ -439,10 +457,12 @@ function calculateOtherInfoAndBuy($api,$SymbolFeatures){
     if(!$SymbolFeatures){return false;}
     //QUANTITY for 2.
     // $SymbolFeatures['quantityToBuy']=$SymbolFeatures['quantityToBuy']*2;
-    
-    // $order = $api->buy($SymbolFeatures["symbol"], $SymbolFeatures['quantityToBuy'], "","MARKET");
-    $order['status']='FILLED';
-    
+    global $test;
+    if(!$test){
+        $order = $api->buy($SymbolFeatures["symbol"], $SymbolFeatures['quantityToBuy'], "","MARKET");
+    }else{
+        $order['status']='FILLED';
+    }
     if(isset($order['status']) && $order['status']=='FILLED'){
         $SymbolFeatures['executedQty']=(float)$order['executedQty'];
         $SymbolFeatures['OrderBuy']=$order['fills'];
@@ -470,6 +490,9 @@ function CalculatePriceAndQtyToSellOCO(&$SymbolFeatures,$api){
     //Prezzo preso:
     $SymbolFeatures['lastOrder']=getLastOrderBySymbol($api,$SymbolFeatures['symbol']);
     $prezzoPreso=(float)$SymbolFeatures['lastOrder']['price'];
+    global $test;
+    if($test){$prezzoPreso=(float)$SymbolFeatures['LastPriceViewd'];}
+
 
     $tickSize=(float)$SymbolFeatures['tickSize'];
    
@@ -507,11 +530,13 @@ function CalculatePriceAndQtyToSellOCO(&$SymbolFeatures,$api){
 function sellOcoProfitStop($SymbolFeatures,$api){
     CalculatePriceAndQtyToSellOCO($SymbolFeatures,$api);
     writeInJson('simbolbuyed',$SymbolFeatures);
-    
-    // $order = $api->ocoOrder( 'SELL', $SymbolFeatures['symbol'], $SymbolFeatures['quantityForSell'], $SymbolFeatures['prezzoVendita'],     $SymbolFeatures['stopprice'],$SymbolFeatures['stoplimitprice']);
-    $order=array();
-    $order['orderReports']=true;
-
+    global $test;
+    if(!$test){
+        $order = $api->ocoOrder( 'SELL', $SymbolFeatures['symbol'], $SymbolFeatures['quantityForSell'], $SymbolFeatures['prezzoVendita'],     $SymbolFeatures['stopprice'],$SymbolFeatures['stoplimitprice']);
+    }else{
+        $order=array();
+        $order['orderReports']=true;
+    }
     $SymbolFeatures['orderOCO']=$order;
     if(isset($order['orderReports'])){
         writeInJson('simbolbuyed','');
