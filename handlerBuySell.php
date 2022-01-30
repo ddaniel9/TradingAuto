@@ -409,6 +409,7 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         $differentialLine=differentialLineForMacd($exponentialMovingAverage26,$exponentialMovingAverage12);
         //   if   $signalLine>$differentialLine; => Rilazista
         
+        
         if(
             $checkUpTrand     // trand rialzista
             &&

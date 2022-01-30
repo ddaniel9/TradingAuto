@@ -35,7 +35,34 @@ require_once 'handlerBuySell.php';
                         // echo json_encode(exponentialMovingAverage((array)$arrayClose,5));
 
                         initConfiguration();
-                        $candle5m=$api->getCandle('FORBNB','5m');
+                        $candle5m=$api->getCandle('ADABNB','15m');// come da grafico
+                        $arrayClose=array_column($candle5m,'close');// come da grafico
+                        echo json_encode("arrayClose: ").PHP_EOL;
+                        echo json_encode($arrayClose).PHP_EOL;
+                        // $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
+        // $trader_stochrsi=array_reverse(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
+        $trader_stochrsi=(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
+        echo json_encode("trader_stochrsi: ").PHP_EOL;
+        echo json_encode($trader_stochrsi).PHP_EOL;
+        $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,10);// come da grafico
+        // echo json_encode("EMA : ").PHP_EOL;// come da grafico
+        // echo json_encode($exponentialMovingAverage12).PHP_EOL;
+        $exponentialMovingAverage26=exponentialMovingAverage($arrayClose,26);
+        $signalLine=$exponentialMovingAverage9=exponentialMovingAverage($arrayClose,9);
+
+        $rsi=trader_rsi($arrayClose,17);
+        echo json_encode("trader_rsi : ").PHP_EOL;
+        echo json_encode($rsi).PHP_EOL;
+
+        $stochrsi = trader_stoch($rsi,$rsi,$rsi,17,9,TRADER_MA_TYPE_SMA,3,TRADER_MA_TYPE_SMA);
+        echo json_encode("trader_stoch : ").PHP_EOL;
+        echo json_encode($stochrsi).PHP_EOL; // come da grafico
+
+
+        // (sui 15 minuti per esempio sono consigliati i 20-5-5 o 17-9-3), invece per
+        // quelli più alti si può lavorare con valori più bassi per essere più reattivi (5- 3-3 o 6-3-3).
+        $differentialLine=differentialLineForMacd($exponentialMovingAverage26,$exponentialMovingAverage12);
+        //   if   $signalLine>$differentialLine; => Rilazista
 // $result2=checkOrderByMoneyGame($api);
 
 
@@ -62,6 +89,6 @@ require_once 'handlerBuySell.php';
 // $keyCripto=array_search('WIN',array_column($result['balances'],'asset'));
 // echo json_encode($result[ count($result) - 1  ]).PHP_EOL;
 
-echo json_encode($candle5m);
+// echo json_encode($arrayClose);
 
  ?>
