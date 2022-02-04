@@ -425,23 +425,33 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                 $differentialLine=differentialLineForMacd($smaMovingAverage26,$smaMovingAverage12);
                 $SymbolFeatures['differentialLine']=end($differentialLine);
                 $SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['signalLine']-$SymbolFeatures['differentialLine'];
-                $emaMovingAverage21=trader_ema($arrayClose,21);
-                $SymbolFeatures['emaMovingAverage21']=end($emaMovingAverage21);
+                
+                //strategy with trandUp or TrandDown
+                    $emaMovingAverage21=trader_ema($arrayClose,21);
+                    $SymbolFeatures['emaMovingAverage21']=end($emaMovingAverage21);
+                    $emaMovingAverage100=trader_ema($arrayClose,100);
+                    $SymbolFeatures['emaMovingAverage100']=end($emaMovingAverage100);
+                    $smaMovingAverage200=trader_sma($arrayClose,200);
+                    $SymbolFeatures['smaMovingAverage200']=end($smaMovingAverage200);
+                    $SymbolFeatures['checkCrossUp21To100']=$checkCrossUp21To100=checkFastOnCrossSlow($emaMovingAverage21,$emaMovingAverage100,40);
+                    $SymbolFeatures['checkCrossUp21ToClose']=$checkCrossUp21ToClose=checkFastOnCrossSlow($emaMovingAverage21,$arrayClose,60);
                 //   if   $signalLine>$differentialLine; => Rilazista
             
         
         if(
-            $checkUpTrand     // trand rialzista
-            &&
-            $checkNoDojiInArray  // no candele doji
-            &&
+            $checkCrossUp21To100  && $checkCrossUp21ToClose   // trend rialzista
+            // &&
+            // $checkUpTrand     // trand rialzista
+            // &&
+            // $checkNoDojiInArray  // no candele doji
+            // &&
             // $checkGreenLastCandle //l'ultima candela dei 5m deve essere verde
             // &&
             // !$checkGreensecondLastCandle // la penultima candela  dei 5m deve essere rossa
             // &&
-            !$checkLastCandleLongShodow   // l'ultima candela non deve avere una lunga ombra 
-            &&
-            !$checksecondLastCandleLongShodow //la penultima candela non deve avere una lunga ombra 
+            // !$checkLastCandleLongShodow   // l'ultima candela non deve avere una lunga ombra 
+            // &&
+            // !$checksecondLastCandleLongShodow //la penultima candela non deve avere una lunga ombra 
         ){
             return true;
         }

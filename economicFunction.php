@@ -241,3 +241,17 @@ function differentialLineForMacd($firstPeriod,$secondPeriod){
     }
     return $minus_arr;
 }
+
+
+
+/**
+ * 21 incrocia al rilazo la 100 entro $numberPeriod periodi
+ * 
+ */
+function checkFastOnCrossSlow($fastMa,$slowMa,$numberPeriod){
+    $arr_length = sizeof($fastMa) -1;
+    $i=$arr_length-$numberPeriod;
+    $crossDown= $fastMa[$i]<$slowMa[$i];
+    $crossUp=$fastMa[$arr_length]>$slowMa[$arr_length];
+    return $crossDown && $crossUp;
+}
