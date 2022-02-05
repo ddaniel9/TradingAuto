@@ -394,8 +394,11 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
 
         global $temporalView;
 
-
         $symbol=$SymbolFeatures['symbol'];
+
+        if($symbol=='CHZBNB'){
+            $symbofefe=true;
+        }
 
         $SymbolFeatures['timeframe']='15m';
         $candle1h=$api->getCandle($symbol,'1h');
@@ -429,16 +432,22 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
 
 
             //EMA && SMA && MACD:
+                $trader_macd=trader_macd($arrayClose,12,26,9);
+                    $signalLine= $trader_macd[1];
+                    $Macd= $trader_macd[0];
+                    
+                    $SymbolFeatures['MACD']=end($Macd);
+                    $SymbolFeatures['signalLine']=end($signalLine);
                 // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);
-                $emaMovingAverage12=trader_ema($arrayClose,12);
-                $SymbolFeatures['emaMovingAverage12']=end($emaMovingAverage12);
-                $emaMovingAverage26=trader_ema($arrayClose,26);
-                $SymbolFeatures['emaMovingAverage26']=end($emaMovingAverage26);
-                $signalLine=$emaMovingAverage9=trader_ema($arrayClose,9);
-                $SymbolFeatures['signalLine']=end($signalLine);
-                $differentialLine=differentialLineForMacd($emaMovingAverage12,$emaMovingAverage26);
-                $SymbolFeatures['differentialLine']=end($differentialLine);
-                $MACD=$SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['differentialLine']>$SymbolFeatures['signalLine'];
+                // $emaMovingAverage12=trader_ema($arrayClose,12);
+                // $SymbolFeatures['emaMovingAverage12']=end($emaMovingAverage12);
+                // $emaMovingAverage26=trader_ema($arrayClose,26);
+                // $SymbolFeatures['emaMovingAverage26']=end($emaMovingAverage26);
+                // $signalLine=$emaMovingAverage9=trader_ema($arrayClose,9);
+                // $SymbolFeatures['signalLine']=end($signalLine);
+                // $differentialLine=differentialLineForMacd($emaMovingAverage12,$emaMovingAverage26);
+                // $SymbolFeatures['differentialLine']=end($differentialLine);
+                // $MACD=$SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['differentialLine']>$SymbolFeatures['signalLine'];
                 //strategy with trandUp or TrandDown
                     $emaMovingAverage21=trader_ema($arrayClose,21);
                     $SymbolFeatures['emaMovingAverage21']=end($emaMovingAverage21);
@@ -449,9 +458,16 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                     $SymbolFeatures['checkCrossUp21To100']=
                     $checkCrossUp21To100=checkFastOnCrossSlow($emaMovingAverage21,$emaMovingAverage100,$temporalView);
                     $SymbolFeatures['checkCrossUp21ToClose']=
-                    $checkCrossUp21ToClose=checkFastOnCrossSlow($emaMovingAverage21,$arrayClose,$temporalView);
-                    $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($differentialLine,$signalLine,$temporalView);
+                    $checkCrossUp21ToClose=checkFastOnCrossSlow($arrayClose,$emaMovingAverage21,$temporalView);
+                    
+                    
+
+                    $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($Macd,$signalLine,$temporalView);
                     //la linea del MACD supera, incrocia verso l'alto la signalline -> acquisto.
+
+
+
+                    
 
 
                     // //COUNT: 
@@ -467,7 +483,7 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         
         if(
             $checkCrossUp21To100  && $checkCrossUp21ToClose   // trend rialzista
-            && $MACD 
+            && $checkMACDnear 
             // && $checkMACDnear
             // &&
             // $checkUpTrand     // trand rialzista
