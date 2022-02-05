@@ -41,32 +41,48 @@ require_once 'handlerBuySell.php';
         echo json_encode($arrayClose).PHP_EOL;
                         // $SymbolFeatures['trader_rsi']=array_reverse(trader_rsi($SymbolFeatures['arrayClose'],5));
         // $trader_stochrsi=array_reverse(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
-        $trader_stochrsi=(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
-        echo json_encode("trader_stochrsi: ").PHP_EOL;
-        echo json_encode($trader_stochrsi).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
-        // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);// come da grafico
-        $exponentialMovingAverage12=trader_sma($arrayClose,12);
-        echo json_encode("SMA 12 : ").PHP_EOL;// come da grafico
-        echo json_encode($exponentialMovingAverage12).PHP_EOL;
-        $exponentialMovingAverage26=trader_sma($arrayClose,26);
-        echo json_encode("SMA 26 : ").PHP_EOL;// come da grafico
-        echo json_encode($exponentialMovingAverage26).PHP_EOL;
-        $signalLine=$exponentialMovingAverage9=trader_sma($arrayClose,9);
-        echo json_encode("SMA 9 : ").PHP_EOL;// come da grafico
-        echo json_encode($exponentialMovingAverage9).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+                // $trader_stochrsi=(trader_stochrsi($arrayClose,17,9,3,TRADER_MA_TYPE_SMA));
+                // echo json_encode("trader_stochrsi: ").PHP_EOL;
+                // echo json_encode($trader_stochrsi).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+                // // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);// come da grafico
+                $exponentialMovingAverage12=trader_sma($arrayClose,12);
+                echo json_encode("SMA 12 : ").PHP_EOL;// come da grafico
+                echo json_encode($exponentialMovingAverage12).PHP_EOL;
+                $exponentialMovingAverage26=trader_sma($arrayClose,26);
+                echo json_encode("SMA 26 : ").PHP_EOL;// come da grafico
+                echo json_encode($exponentialMovingAverage26).PHP_EOL;
+                // $signalLine=$exponentialMovingAverage9=trader_sma($arrayClose,9);
+                // echo json_encode("SMA 9 : ").PHP_EOL;// come da grafico
+                // echo json_encode($exponentialMovingAverage9).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
 
-        $rsi=trader_rsi($arrayClose,17);
-        echo json_encode("trader_rsi : ").PHP_EOL;
-        echo json_encode($rsi).PHP_EOL;
+                // $rsi=trader_rsi($arrayClose,17);
+                // echo json_encode("trader_rsi : ").PHP_EOL;
+                // echo json_encode($rsi).PHP_EOL;
 
-        $stochrsi = trader_stoch($rsi,$rsi,$rsi,17,9,TRADER_MA_TYPE_SMA,3,TRADER_MA_TYPE_SMA);
-        echo json_encode("trader_stoch : ").PHP_EOL;
-        echo json_encode($stochrsi).PHP_EOL; // come da grafico
+                // $stochrsi = trader_stoch($rsi,$rsi,$rsi,17,9,TRADER_MA_TYPE_SMA,3,TRADER_MA_TYPE_SMA);
+                // echo json_encode("trader_stoch : ").PHP_EOL;
+                // echo json_encode($stochrsi).PHP_EOL; // come da grafico
 
+                $exponentialMovingAverage100=trader_ema($arrayClose,100);
+                echo json_encode("ema 100 : ").PHP_EOL;// come da grafico
+                echo json_encode($exponentialMovingAverage100).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+
+                  $exponentialMovingAverage21=trader_ema($arrayClose,21);
+                echo json_encode("ema 21 : ").PHP_EOL;// come da grafico
+                echo json_encode($exponentialMovingAverage21).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+
+                $signalLine=$exponentialMovingAverage9=trader_sma($arrayClose,9);
+                echo json_encode("sma 9 : ").PHP_EOL;// come da grafico
+                echo json_encode($exponentialMovingAverage21).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+
+                $differentialLine=differentialLineForMacd($exponentialMovingAverage26,$exponentialMovingAverage12);
+                echo json_encode("differentialLine : ").PHP_EOL;// come da grafico
+                echo json_encode($differentialLine).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+                checkFastOnCrossSlow($signalLine,$differentialLine,60);
 
         // (sui 15 minuti per esempio sono consigliati i 20-5-5 o 17-9-3), invece per
         // quelli più alti si può lavorare con valori più bassi per essere più reattivi (5- 3-3 o 6-3-3).
-        $differentialLine=differentialLineForMacd($exponentialMovingAverage26,$exponentialMovingAverage12);
+        // $differentialLine=differentialLineForMacd($exponentialMovingAverage26,$exponentialMovingAverage12);
         //   if   $signalLine>$differentialLine; => Rilazista
 // $result2=checkOrderByMoneyGame($api);
 

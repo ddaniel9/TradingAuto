@@ -231,12 +231,12 @@ function checkGreenCandle(array $candle){
  * 
  */
 function differentialLineForMacd($firstPeriod,$secondPeriod){
-    $arr_length = sizeof($firstPeriod) -1;
+    $arr_length = array_key_last($firstPeriod);
     $minus_arr = [];
     for($i = 0; $i <= $arr_length; $i++){
         if(isset($secondPeriod[$i]) &&  isset($firstPeriod[$i])){
             $minus = $firstPeriod[$i] - $secondPeriod[$i];
-            array_push($minus_arr, $minus);
+            $minus_arr[$i]=$minus;
         }
     }
     return $minus_arr;
@@ -249,9 +249,22 @@ function differentialLineForMacd($firstPeriod,$secondPeriod){
  * 
  */
 function checkFastOnCrossSlow($fastMa,$slowMa,$numberPeriod){
-    $arr_length_fast = sizeof($fastMa) -1;
-    $arr_length_slow = sizeof($slowMa) -1;
-    $crossDown= $fastMa[$arr_length_fast-$numberPeriod]<=$slowMa[$arr_length_slow-$numberPeriod];
-    $crossUp=$fastMa[$arr_length_fast]>=$slowMa[$arr_length_slow];
-    return $crossDown && $crossUp;
+    $endfast = end($fastMa);
+    $endslow = end($slowMa);
+    $endfastC = count($fastMa);
+    $endslowC = count($slowMa);
+    $crossUp=$endfast>=$endslow;
+    $crossDown=$lastMin=false;
+    if($crossUp){
+        $fastMa = array_slice($fastMa,-$numberPeriod,$numberPeriod,true);
+        $slowMa = array_slice($slowMa,-$numberPeriod,$numberPeriod,true);
+        $lastMin=false;
+        foreach($fastMa as $key => $value){
+            if($fastMa[$key]<=$slowMa[$key]){
+                $lastMin=$key;
+                $crossDown= $fastMa[$key]<=$slowMa[$key];
+            }
+        }
+    }    
+    return $lastMin;
 }

@@ -414,6 +414,13 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                 $SymbolFeatures['trader_stochrsiK']=$trader_stochrsiK= end($trader_stochrsi[0]);
                 $SymbolFeatures['trader_stochrsiD']=$trader_stochrsiD= end($trader_stochrsi[1]);
                 $SymbolFeatures['rsi']=end($rsi);
+
+                // $trader_stochrsiD < 20 almeno una volta e adesso maggiore di 20 e minore di 78.
+                // il punto in cui è minore, è prima <- del MACD salga.
+
+
+
+
             //EMA && SMA && MACD:
                 // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);
                 $smaMovingAverage12=trader_sma($arrayClose,12);
@@ -438,20 +445,24 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                     $SymbolFeatures['checkCrossUp21ToClose']=
                     $checkCrossUp21ToClose=checkFastOnCrossSlow($emaMovingAverage21,$arrayClose,60);
                     $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($signalLine,$differentialLine,60);
-                    //COUNT: 
-                    $SymbolFeatures['count']['signalLine']=count($signalLine);
-                    $SymbolFeatures['count']['differentialLine']=count($differentialLine);
-                    $SymbolFeatures['count']['emaMovingAverage21']=count($emaMovingAverage21);
-                    $SymbolFeatures['count']['emaMovingAverage100']=count($emaMovingAverage100);
-                    $SymbolFeatures['count']['smaMovingAverage200']=count($smaMovingAverage200);
-                    $SymbolFeatures['count']['arrayClose']=count($arrayClose);
+
+
+
+                    // //COUNT: 
+                    // $SymbolFeatures['count']['signalLine']=count($signalLine);
+                    // $SymbolFeatures['count']['differentialLine']=count($differentialLine);
+                    // $SymbolFeatures['count']['emaMovingAverage21']=count($emaMovingAverage21);
+                    // $SymbolFeatures['count']['emaMovingAverage100']=count($emaMovingAverage100);
+                    // $SymbolFeatures['count']['smaMovingAverage200']=count($smaMovingAverage200);
+                    // $SymbolFeatures['count']['arrayClose']=count($arrayClose);
 
 
             
         
         if(
             $checkCrossUp21To100  && $checkCrossUp21ToClose   // trend rialzista
-            && $MACD && $checkMACDnear
+            && $MACD 
+            // && $checkMACDnear
             // &&
             // $checkUpTrand     // trand rialzista
             // &&
