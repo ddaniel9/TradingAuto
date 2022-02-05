@@ -38,6 +38,7 @@ function initConfiguration(){
     global $token;
     global $chatId;
     global $test;
+    global $temporalView;
     $percVenditaPerdita=$config->percVenditaPerdita/100;
     $moltiplicatore=$config->moltiplicatore;
     $percVenditaVincita=$config->percVenditaVincita;
@@ -48,6 +49,7 @@ function initConfiguration(){
     $token=$config->token;
     $chatId=$config->chatId;
     $count=1;
+    $temporalView=$config->temporalView;
     $test=$config->test;
 }
 
@@ -389,7 +391,12 @@ function checkOrderByMoneyGame($api){
  * Candle: 1m,3m,5m,15m,30m,1h,2h,4h,6h,8h,12h,1d,3d,1w,1M
  */
 function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
+
+        global $temporalView;
+
+
         $symbol=$SymbolFeatures['symbol'];
+
         $SymbolFeatures['timeframe']='15m';
         $candle1h=$api->getCandle($symbol,'1h');
         $SymbolFeatures['upTrand1h']=$checkUpTrand=checkUpTrand($candle1h,3);
@@ -431,8 +438,7 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                 $SymbolFeatures['signalLine']=end($signalLine);
                 $differentialLine=differentialLineForMacd($emaMovingAverage12,$emaMovingAverage26);
                 $SymbolFeatures['differentialLine']=end($differentialLine);
-                $SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['differentialLine']-$SymbolFeatures['signalLine'];
-                $MACD=$SymbolFeatures['trandUpFromMACD']>0;
+                $MACD=$SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['differentialLine']>$SymbolFeatures['signalLine'];
                 //strategy with trandUp or TrandDown
                     $emaMovingAverage21=trader_ema($arrayClose,21);
                     $SymbolFeatures['emaMovingAverage21']=end($emaMovingAverage21);
@@ -441,10 +447,10 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                     $smaMovingAverage200=trader_sma($arrayClose,200);
                     $SymbolFeatures['smaMovingAverage200']=end($smaMovingAverage200);
                     $SymbolFeatures['checkCrossUp21To100']=
-                    $checkCrossUp21To100=checkFastOnCrossSlow($emaMovingAverage21,$emaMovingAverage100,40);
+                    $checkCrossUp21To100=checkFastOnCrossSlow($emaMovingAverage21,$emaMovingAverage100,$temporalView);
                     $SymbolFeatures['checkCrossUp21ToClose']=
-                    $checkCrossUp21ToClose=checkFastOnCrossSlow($emaMovingAverage21,$arrayClose,60);
-                    $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($differentialLine,$signalLine,60);
+                    $checkCrossUp21ToClose=checkFastOnCrossSlow($emaMovingAverage21,$arrayClose,$temporalView);
+                    $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($differentialLine,$signalLine,$temporalView);
                     //la linea del MACD supera, incrocia verso l'alto la signalline -> acquisto.
 
 
