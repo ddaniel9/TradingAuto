@@ -249,9 +249,9 @@ function differentialLineForMacd($firstPeriod,$secondPeriod){
  * 
  */
 function checkFastOnCrossSlow($fastMa,$slowMa,$numberPeriod){
-    $arr_length = sizeof($fastMa) -1;
-    $i=$arr_length-$numberPeriod;
-    $crossDown= $fastMa[$i]<$slowMa[$i];
-    $crossUp=$fastMa[$arr_length]>$slowMa[$arr_length];
+    $arr_length_fast = sizeof($fastMa) -1;
+    $arr_length_slow = sizeof($slowMa) -1;
+    $crossDown= $fastMa[$arr_length_fast-$numberPeriod]<=$slowMa[$arr_length_slow-$numberPeriod];
+    $crossUp=$fastMa[$arr_length_fast]>=$slowMa[$arr_length_slow];
     return $crossDown && $crossUp;
 }
