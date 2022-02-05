@@ -423,15 +423,15 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
 
             //EMA && SMA && MACD:
                 // $exponentialMovingAverage12=exponentialMovingAverage($arrayClose,12);
-                $smaMovingAverage12=trader_sma($arrayClose,12);
-                $SymbolFeatures['smaMovingAverage12']=end($smaMovingAverage12);
-                $smaMovingAverage26=trader_sma($arrayClose,26);
-                $SymbolFeatures['smaMovingAverage26']=end($smaMovingAverage26);
-                $signalLine=$smaMovingAverage9=trader_sma($arrayClose,9);
+                $emaMovingAverage12=trader_ema($arrayClose,12);
+                $SymbolFeatures['emaMovingAverage12']=end($emaMovingAverage12);
+                $emaMovingAverage26=trader_ema($arrayClose,26);
+                $SymbolFeatures['emaMovingAverage26']=end($emaMovingAverage26);
+                $signalLine=$emaMovingAverage9=trader_ema($arrayClose,9);
                 $SymbolFeatures['signalLine']=end($signalLine);
-                $differentialLine=differentialLineForMacd($smaMovingAverage26,$smaMovingAverage12);
+                $differentialLine=differentialLineForMacd($emaMovingAverage12,$emaMovingAverage26);
                 $SymbolFeatures['differentialLine']=end($differentialLine);
-                $SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['signalLine']-$SymbolFeatures['differentialLine'];
+                $SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['differentialLine']-$SymbolFeatures['signalLine'];
                 $MACD=$SymbolFeatures['trandUpFromMACD']>0;
                 //strategy with trandUp or TrandDown
                     $emaMovingAverage21=trader_ema($arrayClose,21);
@@ -444,8 +444,8 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                     $checkCrossUp21To100=checkFastOnCrossSlow($emaMovingAverage21,$emaMovingAverage100,40);
                     $SymbolFeatures['checkCrossUp21ToClose']=
                     $checkCrossUp21ToClose=checkFastOnCrossSlow($emaMovingAverage21,$arrayClose,60);
-                    $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($signalLine,$differentialLine,60);
-
+                    $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($differentialLine,$signalLine,60);
+                    //la linea del MACD supera, incrocia verso l'alto la signalline -> acquisto.
 
 
                     // //COUNT: 

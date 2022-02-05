@@ -246,13 +246,11 @@ function differentialLineForMacd($firstPeriod,$secondPeriod){
 
 /**
  * 21 incrocia al rilazo la 100 entro $numberPeriod periodi
- * 
+ * checkFastOnCrossSlow Return a key of element where there was the condition of the cross
  */
 function checkFastOnCrossSlow($fastMa,$slowMa,$numberPeriod){
     $endfast = end($fastMa);
     $endslow = end($slowMa);
-    $endfastC = count($fastMa);
-    $endslowC = count($slowMa);
     $crossUp=$endfast>=$endslow;
     $crossDown=$lastMin=false;
     if($crossUp){
