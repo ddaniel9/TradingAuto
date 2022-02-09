@@ -341,7 +341,11 @@ function getAllh24GoodSymbol($api){
         if(
             $criptoInSymbol
         &
-            $value["priceChangePercent"] >=$MinPercentualeDiCrescita )
+            $value["priceChangePercent"] >=$MinPercentualeDiCrescita
+            // 0.50<$value["priceChangePercent"] 
+            // &&
+            // 1.90>$value["priceChangePercent"]
+            )
             {
             $arrayForGame[]=$value;
             }
@@ -396,7 +400,7 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
 
         $symbol=$SymbolFeatures['symbol'];
 
-        if($symbol=='CHZBNB'){
+        if($symbol=='FARMBNB'){
             $symbofefe=true;
         }
 
@@ -424,7 +428,8 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                 $SymbolFeatures['trader_stochrsiK']=$trader_stochrsiK= end($trader_stochrsi[0]);
                 $SymbolFeatures['trader_stochrsiD']=$trader_stochrsiD= end($trader_stochrsi[1]);
                 $SymbolFeatures['rsi']=end($rsi);
-
+                $rsiUp70=$SymbolFeatures['rsi']>70;
+                $stoChKUpD=$trader_stochrsiK>$trader_stochrsiD;
                 // $trader_stochrsiD < 20 almeno una volta e adesso maggiore di 20 e minore di 78.
                 // il punto in cui è minore, è prima <- del MACD salga.
 
@@ -455,18 +460,21 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                     $SymbolFeatures['emaMovingAverage100']=end($emaMovingAverage100);
                     $smaMovingAverage200=trader_sma($arrayClose,200);
                     $SymbolFeatures['smaMovingAverage200']=end($smaMovingAverage200);
+
                     $SymbolFeatures['checkCrossUp21To100']=
                     $checkCrossUp21To100=checkFastOnCrossSlow($emaMovingAverage21,$emaMovingAverage100,$temporalView);
                     $SymbolFeatures['checkCrossUp21ToClose']=
                     $checkCrossUp21ToClose=checkFastOnCrossSlow($arrayClose,$emaMovingAverage21,$temporalView);
                     
+                    $check21UpTo100ema=$SymbolFeatures['emaMovingAverage21']>$SymbolFeatures['emaMovingAverage100'];
+                    $check21UpTo200sma=$SymbolFeatures['emaMovingAverage21']>$SymbolFeatures['smaMovingAverage200'];
                     
 
                     $SymbolFeatures['checkMACDnear']=$checkMACDnear=checkFastOnCrossSlow($Macd,$signalLine,$temporalView);
                     //la linea del MACD supera, incrocia verso l'alto la signalline -> acquisto.
+                    $MACDUpZero=$SymbolFeatures['MACD']>0;
 
-
-
+                   
                     
 
 
@@ -478,12 +486,21 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                     // $SymbolFeatures['count']['smaMovingAverage200']=count($smaMovingAverage200);
                     // $SymbolFeatures['count']['arrayClose']=count($arrayClose);
 
+            //Strategia di prova: end di 21 sopra end di 100
+            // e MACD appena crossOver.
+            // aggiungere stoChKeD sopra 20 ipervenduto?
+            $strategyTry=$check21UpTo100ema && $check21UpTo200sma && $checkMACDnear && $rsiUp70 && $stoChKUpD;
 
-            
-        
+            //stretegia Tesi: 
+            $strtegyTesi=$checkCrossUp21To100 && $check21UpTo200sma  && $checkCrossUp21ToClose  && $checkMACDnear && $MACDUpZero;
+            $SymbolFeatures['strategy']['strategyTry']=$strategyTry;
+            $SymbolFeatures['strategy']['strtegyTesi']=$strtegyTesi;
         if(
-            $checkCrossUp21To100  && $checkCrossUp21ToClose   // trend rialzista
-            && $checkMACDnear 
+            
+
+            // $checkCrossUp21To100  && $checkCrossUp21ToClose   // trend rialzista
+            // &&
+            $strategyTry  || $strtegyTesi
             // && $checkMACDnear
             // &&
             // $checkUpTrand     // trand rialzista
@@ -567,7 +584,7 @@ function CalculatePriceAndQtyToSellOCO(&$SymbolFeatures,$api){
     $SymbolFeatures['prezzoVendita']=$prezzoVendita;
 
     //stoplimitprice:
-    $stoplimitprice=$stopprice-($tickSize*4);
+    $stoplimitprice=$stopprice-($tickSize*10);
     $SymbolFeatures['stoplimitprice']=$stoplimitprice;
    
     //QUANTITY:

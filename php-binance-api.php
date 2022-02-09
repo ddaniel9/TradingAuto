@@ -1226,7 +1226,7 @@ class API
             if ( $url != 'v1/system/status' && $url != 'v3/systemStatus.html' && $url != 'v3/accountStatus.html') {
                 // should always output error, not only on httpdebug
                 // not outputing errors, hides it from users and ends up with tickets on github
-                if($json['msg']=='Filter failure: MIN_NOTIONAL'){ echo 'cccccciao'.PHP_EOL;}
+                error_log(json_encode($json),3,"error.log");
                 throw new \Exception('signedRequest error: '.print_r($output, true));
             }
         }

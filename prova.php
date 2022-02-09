@@ -80,6 +80,34 @@ require_once 'handlerBuySell.php';
                 echo json_encode($differentialLine).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
                 checkFastOnCrossSlow($signalLine,$differentialLine,60);
 
+
+
+                 // DA TESTARE:
+                //  trader_stochf(
+                //         array $high,
+                //         array $low,
+                //         array $close,
+                //         int $fastK_Period = ?,
+                //         int $fastD_Period = ?,
+                //         int $fastD_MAType = ?
+                //     ): array
+
+
+                 $traderMom=trader_mom($arrayClose, 21);
+                 echo json_encode("traderMom : ").PHP_EOL;// come da grafico
+                echo json_encode($traderMom).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+
+
+                $traderCmo=trader_cmo($arrayClose, 21);
+                 echo json_encode("traderCmo : ").PHP_EOL;// come da grafico
+                echo json_encode($traderCmo).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+
+
+
+                $traderTrima=trader_trima($arrayClose, 21);
+                 echo json_encode("traderTrima : ").PHP_EOL;// come da grafico
+                echo json_encode($traderTrima).PHP_EOL.PHP_EOL.PHP_EOL.PHP_EOL;
+
         // (sui 15 minuti per esempio sono consigliati i 20-5-5 o 17-9-3), invece per
         // quelli più alti si può lavorare con valori più bassi per essere più reattivi (5- 3-3 o 6-3-3).
         // $differentialLine=differentialLineForMacd($exponentialMovingAverage26,$exponentialMovingAverage12);
