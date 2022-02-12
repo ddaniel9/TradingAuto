@@ -55,13 +55,15 @@ kill processsss
                 https://pecl.php.net/package/trader/0.5.1/windows
 			
 estensione trader_php per Linux :
-					sudo apt-get install -y php-pecl-http
-					sudo apt-get install php-pear php7-dev
-	apt-get install php-pear php-dev libcurl3-openssl-dev
-	pecl install trader
+					sudo apt-get install -y php-pecl-http;
+					sudo apt-get install php-pear php7-dev;
+	apt-get install php-pear php-dev libcurl3-openssl-dev;
+	pecl install trader;
 	scrivere sul file php.ini : extension=trader.so :
+	
 				cercare il file: php -i | grep ini
 				scrivere: nano  /etc/php/7.4/cli/php.ini
+				
 riavviare PHP:
 		se nginx: service nginx restart
 
