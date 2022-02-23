@@ -543,7 +543,7 @@ function calculateOtherInfoAndBuy($api,$SymbolFeatures){
     // $SymbolFeatures['quantityToBuy']=$SymbolFeatures['quantityToBuy']*2;
     global $test;
     if(!$test){
-        $order = $api->buy($SymbolFeatures["symbol"], $SymbolFeatures['quantityToBuy'], "","MARKET");
+        $order = $api->buy($SymbolFeatures["symbol"], formatNumber($SymbolFeatures['quantityToBuy']), "","MARKET");
     }else{
         $order['status']='FILLED';
     }
@@ -616,7 +616,7 @@ function sellOcoProfitStop($SymbolFeatures,$api){
     writeInJson('simbolbuyed',$SymbolFeatures);
     global $test;
     if(!$test){
-        $order = $api->ocoOrder( 'SELL', $SymbolFeatures['symbol'], $SymbolFeatures['quantityForSell'], $SymbolFeatures['prezzoVendita'],     $SymbolFeatures['stopprice'],$SymbolFeatures['stoplimitprice']);
+        $order = $api->ocoOrder( 'SELL', $SymbolFeatures['symbol'], formatNumber($SymbolFeatures['quantityForSell']), formatNumber($SymbolFeatures['prezzoVendita']), formatNumber($SymbolFeatures['stopprice']),formatNumber($SymbolFeatures['stoplimitprice']));
     }else{
         $order=array();
         $order['orderReports']=true;
