@@ -320,7 +320,7 @@ function initTheGame($api){
         // e verifico la percentuale giornaliera se è buona
             $h24prevDay=getAllh24GoodSymbol($api);
             foreach($h24prevDay as $symbol){
-                handleInitWithOneSymbol($api,$symbol['symbol']);
+                    handleInitWithOneSymbol($api,$symbol['symbol']);
             }
         }
     }
@@ -357,7 +357,7 @@ function getAllh24GoodSymbol($api){
 
 
 function handleInitWithOneSymbol($api,$symbol){
-    global $monetaDaGioco;
+    // global $monetaDaGioco;
     $SymbolFeatures['symbol']=$symbol;
             //verifico la strategia di acquisto:
             $checkStrategy=checkStrategyBeforeToBuy($api,$SymbolFeatures);
@@ -405,8 +405,8 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
         }
 
         $SymbolFeatures['timeframe']='15m';
-        $candle1h=$api->getCandle($symbol,'1h');
-        $SymbolFeatures['upTrand1h']=$checkUpTrand=checkUpTrand($candle1h,3);
+        // $candle1h=$api->getCandle($symbol,'1h');
+        // $SymbolFeatures['upTrand1h']=$checkUpTrand=checkUpTrand($candle1h,3);
         $candle15m=$api->getCandle($symbol,$SymbolFeatures['timeframe']);
 
         $SymbolFeatures['checkNoDojiInArray']=$checkNoDojiInArray=checkNoDojiInArray($candle15m);
@@ -455,17 +455,27 @@ function checkStrategyBeforeToBuy($api,&$SymbolFeatures){
                 // $MACD=$SymbolFeatures['trandUpFromMACD']=$SymbolFeatures['differentialLine']>$SymbolFeatures['signalLine'];
                 //strategy with trandUp or TrandDown
                     $emaMovingAverage21=trader_ema($arrayClose,21);
-                    $SymbolFeatures['emaMovingAverage21']=end($emaMovingAverage21);
+                    
                     $emaMovingAverage100=trader_ema($arrayClose,100);
-                    $SymbolFeatures['emaMovingAverage100']=end($emaMovingAverage100);
+                    
                     $smaMovingAverage200=trader_sma($arrayClose,200);
-                    $SymbolFeatures['smaMovingAverage200']=end($smaMovingAverage200);
+                    
 
                     $SymbolFeatures['checkCrossUp21To100']=
                     $checkCrossUp21To100=checkFastOnCrossSlow($emaMovingAverage21,$emaMovingAverage100,$temporalView);
                     $SymbolFeatures['checkCrossUp21ToClose']=
                     $checkCrossUp21ToClose=checkFastOnCrossSlow($arrayClose,$emaMovingAverage21,$temporalView);
                     
+
+                    $SymbolFeatures['emaMovingAverage21']=end($emaMovingAverage21);
+                    $SymbolFeatures['emaMovingAverage100']=end($emaMovingAverage100);
+                    $SymbolFeatures['smaMovingAverage200']=end($smaMovingAverage200);
+
+                    $temporalViewLast=array_slice($emaMovingAverage21, -$temporalView, 1)[0];
+                    $lastema21=end($emaMovingAverage21);
+                    $straightSlopeLinePositive21=($temporalViewLast)<($lastema21);
+                    $SymbolFeatures['straightSlopeLine21']=$straightSlopeLinePositive21;
+
                     $check21UpTo100ema=$SymbolFeatures['emaMovingAverage21']>$SymbolFeatures['emaMovingAverage100'];
                     $check21UpTo200sma=$SymbolFeatures['emaMovingAverage21']>$SymbolFeatures['smaMovingAverage200'];
                     

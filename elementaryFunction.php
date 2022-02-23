@@ -32,6 +32,15 @@ function transformArrayToObject($array)
 }
 
 
+function formatNumber($number){
+$precision=strlen(rtrim(substr($number, strpos($number, '.', 1) + 1), '0'));
+  if(strripos($number,"E")){
+    $precision=substr(trim($number), -1)+1;
+  }
+  return number_format($number,$precision);
+}
+
+
 function searchBysymbol($symbol, $array) {
     foreach ($array as $key => $val) {
         if ($val->symbol === $symbol) {

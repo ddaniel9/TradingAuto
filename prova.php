@@ -35,7 +35,7 @@ require_once 'handlerBuySell.php';
                         // echo json_encode(exponentialMovingAverage((array)$arrayClose,5));
 
         initConfiguration();
-        $candle5m=$api->getCandle('SUSHIBNB','15m');// come da grafico
+        $candle5m=$api->getCandle('AVABNB','15m');// come da grafico
         $arrayClose=array_column($candle5m,'close');// come da grafico
         echo json_encode("arrayClose: ").PHP_EOL;
         echo json_encode($arrayClose).PHP_EOL;
