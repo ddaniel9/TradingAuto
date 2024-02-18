@@ -69,5 +69,4 @@ riavviare PHP:
 
 
 
-bot telegram:
-https://www.youtube.com/watch?v=hE0lH-5BATI
+
